@@ -159,7 +159,7 @@ void color(dsu_elem* DSU, int width, int height, unsigned char* output_image){
 
   int main() 
 { 
-  const char* filename = "first.png"; 
+  const char* filename = "six.png"; 
   unsigned int width, height;
   int size;
   int bw_size;
@@ -185,7 +185,7 @@ void color(dsu_elem* DSU, int width, int height, unsigned char* output_image){
   unsigned char* output_image = malloc(sizeof(unsigned char) * 4 * width * height);
   color(DSU, width, height, output_image);
 
-  write_png("Final_Skull.png", output_image, width, height);
+  write_png("Final_Skull_6.png", output_image, width, height);
 
   free(sobel_image);
   free(output_image);
