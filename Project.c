@@ -5,7 +5,7 @@
 #include "lodepng.h"
 #define min_color 15
 
-
+//функция для загрузки изображения
 unsigned char* load_png(const char* filename, unsigned int* width, unsigned int* height) 
 {
   unsigned char* image = NULL; 
@@ -16,6 +16,7 @@ unsigned char* load_png(const char* filename, unsigned int* width, unsigned int*
   return (image);
 }
 
+//функция для записи изображения
 void write_png(const char* filename, const unsigned char* image, unsigned width, unsigned height)
 {
   unsigned char* png;
@@ -29,6 +30,7 @@ void write_png(const char* filename, const unsigned char* image, unsigned width,
   free(png);
 }
 
+//функция для перевода изображения в чёрно-белый формат
 void to_wb(unsigned char* image, unsigned char* wb_image,  unsigned width,  unsigned height)
   {
     int i, j, p;
@@ -40,6 +42,7 @@ void to_wb(unsigned char* image, unsigned char* wb_image,  unsigned width,  unsi
       return;
   }
 
+  //функция для повышения контраста изображения (очень серые пиксели становятся чёрными, а наименее серые - белыми)
   void contrast(unsigned char *col, int bw_size){
     int i; 
     for(i=0; i < bw_size; i++)
@@ -52,6 +55,7 @@ void to_wb(unsigned char* image, unsigned char* wb_image,  unsigned width,  unsi
     return; 
 } 
 
+//фильтр Гаусса(размытие изображения, уменьшение шумов)
   void Gauss_blur(unsigned char *wb_image, unsigned char *gauss_image, int width, int height)
   { 
       int i, j; 
@@ -66,6 +70,7 @@ void to_wb(unsigned char* image, unsigned char* wb_image,  unsigned width,  unsi
      return;
     }
 
+  //фильтр Собеля (выделение границ)
   void Sobel(unsigned char *filtered_image, unsigned char *sobel_image, int width, int height){
     int i, j;
     float gx, gy;
@@ -88,10 +93,11 @@ void to_wb(unsigned char* image, unsigned char* wb_image,  unsigned width,  unsi
               sobel_image[i*width + j] = 255;
           };
   }
-
+  //структура для элемента системы непересекающихся множеств
   typedef struct dsu_elem {int parent;
                 int val;} dsu_elem;
   
+  //функция инициализации DSU
   void init(unsigned char* filtered_image, dsu_elem* DSU, int width, int height){
     int i, j, p;
     for (i = 0; i < height; i++)
@@ -102,13 +108,15 @@ void to_wb(unsigned char* image, unsigned char* wb_image,  unsigned width,  unsi
       }
       return;
   }
-
+  
+  //функция поиска представителя 
   int find_set(dsu_elem* elem, int n, dsu_elem* DSU){
     if (n != elem->parent)
       return elem->parent = find_set(&DSU[elem->parent], elem->parent, DSU);
     return n;
   }
   
+  //функция объединения двух множеств
   void unite(dsu_elem* el1, dsu_elem* el2, int n1, int n2, dsu_elem* DSU){
     el1 = &DSU[find_set(el1, n1, DSU)];
     el2 = &DSU[find_set(el2, n2, DSU)];
@@ -116,6 +124,7 @@ void to_wb(unsigned char* image, unsigned char* wb_image,  unsigned width,  unsi
     return;
   }
 
+  //функция разбиения на компоненты связности
   void convert(unsigned char* filtered_image, dsu_elem* DSU, int width, int height){
     int i, j, di, dj, p, p1;
     init(filtered_image, DSU, width, height);
@@ -132,8 +141,10 @@ void to_wb(unsigned char* image, unsigned char* wb_image,  unsigned width,  unsi
         }
   }
 
+  //функция для раскраски изображения
 void color(dsu_elem* DSU, int width, int height, unsigned char* output_image){
   int i, j, p, dip;
+  //все цвета, которые исполязуются
   int colors[11][3] ={
     {255,209,220}, {239,169,74}, {127,181,181}, {255,155,170}, {252,232,131}, {204,204,255},
     {175,238,238}, {214, 255, 166}, {166, 184, 255}, {161,133,148}, {162,162,208}
